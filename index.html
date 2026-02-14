@@ -70,4 +70,21 @@
     </p>
 
     <div class="section">
-      <h2>Ne
+      <h2>Next Pop-Up</h2>
+      <p id="site-popup">Phoenix, AZ<br>Coming Soon</p>
+    </div>
+  </div>
+
+  <!-- Pull content from home.json (for Netlify CMS) -->
+  <script>
+    fetch('content/home.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('site-title').innerText = data.title;
+        document.getElementById('site-subtitle').innerText = data.subtitle;
+        document.getElementById('site-manifesto').innerText = data.manifesto;
+        document.getElementById('site-popup').innerText = data.popup;
+      });
+  </script>
+</body>
+</html>
