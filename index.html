@@ -1,135 +1,164 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>NOCIV.CO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      background-color: black;
-      color: #cccccc; /* soft gray */
-      font-family: Arial, Helvetica, sans-serif;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>NOCIV.CO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    .container {
-      padding: 15vh 20px;
-      max-width: 700px;
-      margin: auto;
-    }
+<style>
+body{
+  margin:0;
+  background:black;
+  color:#ccc;
+  font-family:Arial, Helvetica, sans-serif;
+  text-align:center;
+}
 
-    h1 {
-      font-size: 4rem;
-      letter-spacing: 8px;
-      margin-bottom: 10px;
-    }
+.container{
+  padding:15vh 20px;
+  max-width:700px;
+  margin:auto;
+}
 
-    .subtitle {
-      font-size: 1.2rem;
-      letter-spacing: 2px;
-      margin-bottom: 50px;
-      color: #aaaaaa;
-    }
+h1{
+  font-size:4rem;
+  letter-spacing:8px;
+  margin-bottom:10px;
+}
 
-    p.manifesto {
-      font-size: 1.2rem;
-      line-height: 2.2;
-      margin-bottom: 60px;
-    }
+.subtitle{
+  font-size:1.2rem;
+  letter-spacing:2px;
+  margin-bottom:50px;
+  color:#aaa;
+}
 
-    .section {
-      margin-top: 100px;
-    }
+.manifesto{
+  font-size:1.2rem;
+  line-height:2.2;
+  margin-bottom:60px;
+}
 
-    .button {
-      display: inline-block;
-      padding: 15px 40px;
-      border: 1px solid #cccccc;
-      text-decoration: none;
-      color: #cccccc;
-      margin-top: 30px;
-    }
+.section{ margin-top:100px; }
 
-    .button:hover {
-      background: #cccccc;
-      color: black;
-    }
-  </style>
+button{
+  background:#111;
+  color:#aaa;
+  border:1px solid #333;
+  padding:6px 12px;
+  cursor:pointer;
+}
+
+button:hover{ background:#333; }
+
+#toolContainer, #colorContainer{
+  background:#1a1a1a;
+  padding:15px;
+  margin-top:15px;
+}
+
+#toolRow{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+#states button{
+  margin:4px;
+}
+
+canvas{
+  width:100%;
+  background:white;
+  display:block;
+  touch-action:none;
+}
+
+.feedWrap{
+  border-bottom:1px solid #222;
+  padding:20px 0;
+}
+
+.stateTag{
+  border:1px solid #444;
+  padding:4px 8px;
+  font-size:12px;
+}
+
+.dateTag{
+  font-size:12px;
+  opacity:.6;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1 id="site-title">NOCIV</h1>
-    <div class="subtitle" id="site-subtitle">Nothing of Civilization</div>
 
-    <p class="manifesto" id="site-manifesto">
-      Representing Black America.<br><br>
-      Showcasing present connection.<br><br>
-      No ads. No algorithm. Just human.
-    </p>
+<div class="container">
+<h1 id="site-title">NOCIV</h1>
+<div class="subtitle" id="site-subtitle">Nothing of Civilization</div>
 
-    <div class="section">
-      <h2>Next Pop-Up</h2>
-      <p id="site-popup">Phoenix, AZ<br>Coming Soon</p>
-    </div>
-  </div>
+<p class="manifesto" id="site-manifesto">
+Representing Black America.<br><br>
+Showcasing present connection.<br><br>
+No ads. No algorithm. Just human.
+</p>
 
-  <!-- Pull content from home.json (for Netlify CMS) -->
-  <script>
-    fetch('content/home.json')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('site-title').innerText = data.title;
-        document.getElementById('site-subtitle').innerText = data.subtitle;
-        document.getElementById('site-manifesto').innerText = data.manifesto;
-        document.getElementById('site-popup').innerText = data.popup;
-      });
-  </script>
-</body>
-</html>
-<hr style="margin:80px 0; border-color:#222;">
-<div style="max-width:900px; margin:60px auto 40px auto; text-align:center;">
-  <img src="black-america.svg" style="width:100%; max-width:900px;">
+<div class="section">
+<h2>Next Pop-Up</h2>
+<p id="site-popup">Phoenix, AZ<br>Coming Soon</p>
 </div>
-<section id="stall-wall" style="max-width:900px; margin:auto;">
+</div>
+
+<script>
+fetch('content/home.json')
+.then(res=>res.json())
+.then(data=>{
+  document.getElementById('site-title').innerText=data.title;
+  document.getElementById('site-subtitle').innerText=data.subtitle;
+  document.getElementById('site-manifesto').innerText=data.manifesto;
+  document.getElementById('site-popup').innerText=data.popup;
+});
+</script>
+
+<hr style="margin:80px 0; border-color:#222;">
+
+<div style="max-width:900px; margin:60px auto 40px auto;">
+<img src="black-america.svg" style="width:100%;">
+</div>
+
+<section style="max-width:900px; margin:auto;">
 
 <h2 style="letter-spacing:4px;">THE STALL WALL</h2>
-
 <p style="opacity:.7; margin-bottom:40px;">
 this is how word of mouth works, it goes peer to peer and reaches different states
 </p>
 
-<div id="states" style="margin-bottom:40px;"></div>
+<div id="states"></div>
 
-<div id="editor" style="display:none; margin-bottom:60px;">
-
+<div id="editor" style="display:none; margin-top:40px;">
 <h2 id="stateTitle"></h2>
 
-<!-- TOOL CONTAINER -->
-<div style="background:#1a1a1a; padding:15px; margin-bottom:15px;">
-  <div id="toolRow" style="display:flex; gap:10px; justify-content:center;"></div>
-  <div style="display:flex; justify-content:space-between; margin-top:10px;">
-    <button id="undoBtn">Undo</button>
-    <button id="redoBtn">Redo</button>
-  </div>
+<div id="toolContainer">
+<div id="toolRow"></div>
+<div style="display:flex; justify-content:space-between; margin-top:10px;">
+<button id="undoBtn">Undo</button>
+<button id="redoBtn">Redo</button>
+</div>
 </div>
 
-<canvas id="canvas" style="width:100%; background:white; display:block;"></canvas>
+<canvas id="canvas"></canvas>
 
-<!-- COLOR CONTAINER -->
-<div style="background:#1a1a1a; padding:15px; margin-top:15px;">
-  <div id="colorBar" style="display:flex; gap:10px; justify-content:center;"></div>
+<div id="colorContainer">
+<div id="colorBar" style="display:flex; justify-content:center; gap:10px;"></div>
 </div>
 
 <button id="sendBtn" style="margin-top:20px;">Send Mark</button>
-
 </div>
 
-<!-- FEED -->
-<div style="border-top:1px solid #222; padding-top:30px;">
-  <h3 style="margin-bottom:20px;">Recent Marks</h3>
-  <div id="feedContainer" style="max-height:600px; overflow-y:auto;"></div>
+<div style="margin-top:60px;">
+<h3>Recent Marks</h3>
+<div id="feedContainer" style="max-height:600px; overflow-y:auto;"></div>
 </div>
 
 </section>
@@ -144,15 +173,14 @@ const states=[ "Alabama","Alaska","Arizona","Arkansas","California","Colorado",
 "Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah",
 "Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
 
-const stateContainer=document.getElementById("states");
+const statesDiv=document.getElementById("states");
 const editor=document.getElementById("editor");
 const stateTitle=document.getElementById("stateTitle");
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 const toolRow=document.getElementById("toolRow");
 const colorBar=document.getElementById("colorBar");
-const sendBtn=document.getElementById("sendBtn");
-const feedContainer=document.getElementById("feedContainer");
+const feed=document.getElementById("feedContainer");
 const undoBtn=document.getElementById("undoBtn");
 const redoBtn=document.getElementById("redoBtn");
 
@@ -164,7 +192,6 @@ let history=[];
 let redoStack=[];
 let nocivMode=false;
 
-/* CANVAS SETUP */
 function resizeCanvas(){
   canvas.width=canvas.offsetWidth;
   canvas.height=350;
@@ -174,11 +201,9 @@ function resizeCanvas(){
 resizeCanvas();
 window.addEventListener("resize",resizeCanvas);
 
-/* STATES */
 states.forEach(s=>{
  let b=document.createElement("button");
  b.innerText=s;
- styleStateBtn(b);
  b.onclick=()=>{
    document.querySelectorAll("#states button").forEach(btn=>btn.style.background="#111");
    b.style.background="#444";
@@ -186,40 +211,32 @@ states.forEach(s=>{
    stateTitle.innerText=s;
    editor.style.display="block";
  };
- stateContainer.appendChild(b);
+ statesDiv.appendChild(b);
 });
 
-/* TOOLS */
-const tools=["pencil","eraser","spray","fill","text"];
-tools.forEach(t=>{
+["pencil","eraser","text"].forEach(t=>{
  let b=document.createElement("button");
  b.innerText=t;
- styleToolBtn(b);
  b.onclick=()=>{
    tool=t;
    document.querySelectorAll("#toolRow button").forEach(x=>x.style.outline="none");
    b.style.outline="2px solid white";
 
    if(tool==="text"){
-     let text = prompt("Enter text");
+     let text=prompt("Enter text");
      if(text){
        saveState();
        ctx.fillStyle=color;
-       ctx.font="20px monospace";
+       ctx.font="22px monospace";
        ctx.textAlign="center";
        ctx.fillText(text, canvas.width/2, canvas.height/2);
      }
    }
-};
-   document.querySelectorAll("#toolRow button").forEach(x=>x.style.outline="none");
-   b.style.outline="2px solid white";
  };
  toolRow.appendChild(b);
 });
 
-/* COLORS */
-const colors=["#0b3d2e","#8b0000","#d4a017","#000","#001f3f","#666","#ccc","#fff"];
-colors.forEach(c=>{
+["#0b3d2e","#8b0000","#d4a017","#000","#001f3f","#666","#ccc","#fff"].forEach(c=>{
  let sw=document.createElement("div");
  sw.style.width="28px";
  sw.style.height="28px";
@@ -233,77 +250,47 @@ colors.forEach(c=>{
  colorBar.appendChild(sw);
 });
 
-/* DRAW */
-canvas.style.touchAction = "none";
-
-function startDraw(e){
-  drawing = true;
-  saveState();
-}
-
-function endDraw(){
-  drawing = false;
-}
-
-function draw(e){
-  if(!drawing) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
-  if(tool==="pencil"){
-    ctx.fillStyle=color;
-    ctx.fillRect(x,y,3,3);
-  }
-
-  if(tool==="eraser"){
-    ctx.clearRect(x,y,10,10);
-  }
-}
-
-canvas.addEventListener("mousedown",startDraw);
-canvas.addEventListener("mouseup",endDraw);
-canvas.addEventListener("mousemove",draw);
-
-canvas.addEventListener("touchstart",startDraw);
-canvas.addEventListener("touchend",endDraw);
-canvas.addEventListener("touchmove",draw);
- if(!drawing) return;
- if(tool==="pencil"){
-   ctx.fillStyle=color;
-   ctx.fillRect(e.offsetX,e.offsetY,3,3);
- }
- if(tool==="eraser"){
-   ctx.clearRect(e.offsetX,e.offsetY,10,10);
- }
- if(tool==="spray"){
-   ctx.fillStyle=color;
-   for(let i=0;i<10;i++){
-     let dx=Math.random()*20-10;
-     let dy=Math.random()*20-10;
-     ctx.fillRect(e.offsetX+dx,e.offsetY+dy,1,1);
-   }
- }
-});
-
-/* TEXT */
-if(tool==="text"){
-  let text = prompt("Enter text");
-  if(text){
-    saveState();
-    ctx.fillStyle = color;
-    ctx.font = "20px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width/2, canvas.height/2);
-  }
-}
-
-/* UNDO REDO */
 function saveState(){
  history.push(canvas.toDataURL());
  redoStack=[];
 }
+
+canvas.addEventListener("mousedown",()=>{drawing=true; saveState();});
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mousemove",e=>{
+ if(!drawing) return;
+ const rect=canvas.getBoundingClientRect();
+ const x=e.clientX-rect.left;
+ const y=e.clientY-rect.top;
+
+ if(tool==="pencil"){
+   ctx.fillStyle=color;
+   ctx.fillRect(x,y,3,3);
+ }
+
+ if(tool==="eraser"){
+   ctx.clearRect(x,y,10,10);
+ }
+});
+
+canvas.addEventListener("touchstart",()=>{drawing=true; saveState();});
+canvas.addEventListener("touchend",()=>drawing=false);
+canvas.addEventListener("touchmove",e=>{
+ if(!drawing) return;
+ const rect=canvas.getBoundingClientRect();
+ const x=e.touches[0].clientX-rect.left;
+ const y=e.touches[0].clientY-rect.top;
+
+ if(tool==="pencil"){
+   ctx.fillStyle=color;
+   ctx.fillRect(x,y,3,3);
+ }
+
+ if(tool==="eraser"){
+   ctx.clearRect(x,y,10,10);
+ }
+});
+
 undoBtn.onclick=()=>{
  if(history.length){
    redoStack.push(canvas.toDataURL());
@@ -312,6 +299,7 @@ undoBtn.onclick=()=>{
    img.onload=()=>ctx.drawImage(img,0,0);
  }
 };
+
 redoBtn.onclick=()=>{
  if(redoStack.length){
    history.push(canvas.toDataURL());
@@ -321,57 +309,51 @@ redoBtn.onclick=()=>{
  }
 };
 
-/* SECRET NOCIV MODE */
-window.addEventListener("keydown", e => {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "n") {
-    nocivMode = true;
-    alert("NOCIV mode enabled");
-  }
+window.addEventListener("keydown",e=>{
+ if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==="n"){
+   nocivMode=true;
+   alert("NOCIV mode enabled");
+ }
 });
 
-/* SEND */
-sendBtn.innerText="Send Mark";
-styleToolBtn(sendBtn);
-
-sendBtn.onclick=()=>{
+document.getElementById("sendBtn").onclick=()=>{
  const image=canvas.toDataURL();
  const today=new Date();
  const month=today.toLocaleString('en-US',{month:'short'}).toLowerCase();
  const date=`${month}.${today.getDate()}.${today.getFullYear()}`;
  const post={state:currentState,image,date,time:Date.now(),nociv:nocivMode};
+
  let posts=JSON.parse(localStorage.getItem("stallPosts"))||[];
  posts.unshift(post);
  localStorage.setItem("stallPosts",JSON.stringify(posts));
+
  ctx.fillStyle="white";
  ctx.fillRect(0,0,canvas.width,canvas.height);
+
  nocivMode=false;
  renderFeed();
 };
 
-/* FEED */
 function renderFeed(){
- feedContainer.innerHTML="";
+ feed.innerHTML="";
  let posts=JSON.parse(localStorage.getItem("stallPosts"))||[];
  posts=posts.filter(p=>Date.now()-p.time<30*24*60*60*1000);
+
  posts.slice(0,5).forEach(p=>{
    let wrap=document.createElement("div");
-   wrap.style.borderBottom="1px solid #222";
-   wrap.style.padding="20px 0";
+   wrap.className="feedWrap";
 
    let header=document.createElement("div");
    header.style.display="flex";
    header.style.justifyContent="space-between";
 
    let tag=document.createElement("div");
+   tag.className="stateTag";
    tag.innerText=p.state;
-   tag.style.border="1px solid #444";
-   tag.style.padding="4px 8px";
-   tag.style.fontSize="12px";
 
    let date=document.createElement("div");
+   date.className="dateTag";
    date.innerText=p.date;
-   date.style.fontSize="12px";
-   date.style.opacity=".6";
 
    header.appendChild(tag);
    header.appendChild(date);
@@ -379,29 +361,16 @@ function renderFeed(){
    let img=document.createElement("img");
    img.src=p.image;
    img.style.width="100%";
-   if(p.nociv) img.style.border="2px solid green";
+   if(p.nociv) img.style.border="2px solid #0b3d2e";
 
    wrap.appendChild(header);
    wrap.appendChild(img);
-   feedContainer.appendChild(wrap);
+   feed.appendChild(wrap);
  });
-}
-
-function styleToolBtn(b){
- b.style.background="#333";
- b.style.color="#aaa";
- b.style.border="1px solid #444";
- b.style.padding="6px 12px";
- b.style.cursor="pointer";
-}
-function styleStateBtn(b){
- b.style.background="#111";
- b.style.color="#aaa";
- b.style.border="1px solid #333";
- b.style.padding="6px 10px";
- b.style.cursor="pointer";
- b.style.margin="3px";
 }
 
 renderFeed();
 </script>
+
+</body>
+</html>
