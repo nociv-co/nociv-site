@@ -88,3 +88,109 @@
   </script>
 </body>
 </html>
+<hr style="margin:80px 0; border-color:#333;">
+
+<section id="us-wall">
+  <h2 style="letter-spacing:4px;">UNITED STATES WALL</h2>
+  <div id="states"></div>
+
+  <div id="stateBoard" style="display:none; margin-top:40px;">
+    <h2 id="stateTitle" style="font-weight:bold;"></h2>
+    <p style="opacity:.7; margin-bottom:30px;">
+      Think of this wall like a toilet stall.
+    </p>
+
+    <textarea id="postInput" placeholder="Speak your truth"
+      style="width:100%; height:100px; background:black; color:gray; border:1px solid #333; padding:10px;"></textarea>
+
+    <br><br>
+
+    <label style="font-size:12px;">
+      <input type="checkbox" id="ownerPost"> Mark as NOCIV (green)
+    </label>
+
+    <br><br>
+
+    <button onclick="submitPost()" style="padding:10px 20px; background:black; color:gray; border:1px solid #444;">
+      Post
+    </button>
+
+    <div id="wallPosts" style="margin-top:40px;"></div>
+  </div>
+</section>
+
+<script>
+const states = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
+"Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois",
+"Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
+"Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana",
+"Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York",
+"North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania",
+"Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah",
+"Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
+
+const statesContainer = document.getElementById("states");
+const stateBoard = document.getElementById("stateBoard");
+const stateTitle = document.getElementById("stateTitle");
+const wallPosts = document.getElementById("wallPosts");
+
+let currentState = "";
+
+states.forEach(state => {
+  const btn = document.createElement("button");
+  btn.innerText = state;
+  btn.style.margin = "5px";
+  btn.style.background = "black";
+  btn.style.color = "gray";
+  btn.style.border = "1px solid #333";
+  btn.style.padding = "5px 10px";
+  btn.onclick = () => openState(state);
+  statesContainer.appendChild(btn);
+});
+
+function openState(state){
+  currentState = state;
+  stateTitle.innerText = state;
+  stateBoard.style.display = "block";
+  loadPosts();
+}
+
+function submitPost(){
+  const text = document.getElementById("postInput").value.trim();
+  const owner = document.getElementById("ownerPost").checked;
+
+  if(!text) return;
+
+  const today = new Date();
+  const options = { month: 'short' };
+  const month = today.toLocaleString('en-US', options).toLowerCase();
+  const dateString = month + "." + today.getDate() + "." + today.getFullYear();
+
+  const post = {
+    text,
+    date: dateString,
+    owner
+  };
+
+  let posts = JSON.parse(localStorage.getItem(currentState)) || [];
+  posts.unshift(post);
+  localStorage.setItem(currentState, JSON.stringify(posts));
+
+  document.getElementById("postInput").value = "";
+  loadPosts();
+}
+
+function loadPosts(){
+  wallPosts.innerHTML = "";
+  let posts = JSON.parse(localStorage.getItem(currentState)) || [];
+
+  posts.forEach(post => {
+    const div = document.createElement("div");
+    div.style.marginBottom = "20px";
+    div.style.color = post.owner ? "green" : "gray";
+
+    div.innerHTML = "<strong>" + post.date + "</strong><br>" + post.text;
+    wallPosts.appendChild(div);
+  });
+}
+</script>
