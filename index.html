@@ -94,10 +94,9 @@ canvas{
 
 <body>
 
-<div class="container">
-<h1 id="site-title">NOCIV</h1>
-<div class="subtitle" id="site-subtitle">Nothing of Civilization</div>
-
+<div style="max-width:900px; margin:60px auto 40px auto;">
+  <img src="headernociv.svg" style="width:100%; max-width:600px;">
+</div>
 <p class="manifesto" id="site-manifesto">
 Representing Black America.<br><br>
 Showcasing present connection.<br><br>
@@ -137,28 +136,39 @@ this is how word of mouth works, it goes peer to peer and reaches different stat
 <div id="states"></div>
 
 <div id="editor" style="display:none; margin-top:40px;">
+
 <h2 id="stateTitle"></h2>
 
-<div id="toolContainer">
-<div id="toolRow"></div>
-<div style="display:flex; justify-content:space-between; margin-top:10px;">
-<button id="undoBtn">Undo</button>
-<button id="redoBtn">Redo</button>
-</div>
-</div>
-
-<canvas id="canvas"></canvas>
-
-<div id="colorContainer">
-<div id="colorBar" style="display:flex; justify-content:center; gap:10px;"></div>
+<!-- WRITE SECTION -->
+<div style="margin-bottom:40px;">
+  <h3>Write Something</h3>
+  <input id="textInput" 
+         placeholder="Type here..."
+         style="width:100%; padding:10px; background:#111; border:1px solid #333; color:#ccc;">
+  <button id="addTextBtn" style="margin-top:10px;">Add To Canvas</button>
 </div>
 
-<button id="sendBtn" style="margin-top:20px;">Send Mark</button>
+<!-- DRAW SECTION -->
+<div>
+  <h3>Or Draw Something</h3>
+
+  <div id="toolContainer">
+    <div id="toolRow"></div>
+    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+      <button id="undoBtn">Undo</button>
+      <button id="redoBtn">Redo</button>
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div id="colorContainer">
+    <div id="colorBar" style="display:flex; justify-content:center; gap:10px;"></div>
+  </div>
 </div>
 
-<div style="margin-top:60px;">
-<h3>Recent Marks</h3>
-<div id="feedContainer" style="max-height:600px; overflow-y:auto;"></div>
+<button id="sendBtn" style="margin-top:30px;">Send Mark</button>
+
 </div>
 
 </section>
