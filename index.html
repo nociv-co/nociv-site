@@ -13,16 +13,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
 }
-}
 
-.manifesto{
-  font-size:1.2rem;
-  line-height:2.2;
-  margin-bottom:60px;
-  max-width:700px;
-  margin-left:auto;
-  margin-right:auto;
-}
 a {
   color: #ccc;
   text-decoration: none;
@@ -33,6 +24,17 @@ header img {
   max-width: 700px;
   margin-top: 40px;
   margin-bottom: 40px;
+}
+
+/* --- RESTORED MANIFESTO STYLES --- */
+.manifesto {
+  font-size: 1.2rem;
+  line-height: 2.2;
+  margin-bottom: 60px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 }
 
 #states button {
@@ -104,10 +106,6 @@ textarea {
 <header>
   <img src="headergreynociv.svg" alt="NOCIV">
 </header>
-<!-- LOGO -->
-<div style="max-width:900px; margin:60px auto 40px auto;">
-  <img src="headernociv.svg" style="width:100%; max-width:600px;">
-</div>
 
 <p class="manifesto">
 Representing Black America.<br><br>
@@ -115,18 +113,13 @@ Showcasing present connection.<br><br>
 No ads. No algorithm. Just human.
 </p>
 
-<div class="section">
-<h2>Next Pop-Up</h2>
-<p>Phoenix, AZ<br>Coming Soon</p>
+<hr style="border-color:#222; margin:30px 0;">
+
+<div style="max-width:900px; margin:60px auto 40px auto; padding: 0 20px;">
+  <img src="black-america.svg" style="width:100%;" alt="Black America">
 </div>
 
-<hr style="margin:80px 0; border-color:#222;">
-
-<div style="max-width:900px; margin:60px auto 40px auto;">
-<img src="black-america.svg" style="width:100%;">
-</div>
-
-<section style="max-width:900px; margin:auto;">
+<section style="max-width:900px; margin:auto; padding: 0 20px;">
 
 <h2 style="letter-spacing:4px;">THE STALL WALL</h2>
 <p style="opacity:.7; margin-bottom:40px;">
@@ -199,11 +192,9 @@ function loadPosts() {
   let allPosts = JSON.parse(localStorage.getItem("stallPosts")) || [];
   let statePosts = allPosts.filter(p => p.state === currentState);
 
-  // remove older than 30 days
   const now = Date.now();
   statePosts = statePosts.filter(p => now - p.time < 30*24*60*60*1000);
-  localStorage.setItem("stallPosts", JSON.stringify(allPosts));
-
+  
   if (statePosts.length === 0) {
     postsList.innerHTML = "<p style='opacity:.6'>No marks yet</p>";
     return;
