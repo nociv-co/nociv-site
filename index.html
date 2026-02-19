@@ -197,6 +197,20 @@ tools.forEach(t=>{
    tool=t;
    document.querySelectorAll("#toolRow button").forEach(x=>x.style.outline="none");
    b.style.outline="2px solid white";
+
+   if(tool==="text"){
+     let text = prompt("Enter text");
+     if(text){
+       saveState();
+       ctx.fillStyle=color;
+       ctx.font="20px monospace";
+       ctx.textAlign="center";
+       ctx.fillText(text, canvas.width/2, canvas.height/2);
+     }
+   }
+};
+   document.querySelectorAll("#toolRow button").forEach(x=>x.style.outline="none");
+   b.style.outline="2px solid white";
  };
  toolRow.appendChild(b);
 });
@@ -218,9 +232,41 @@ colors.forEach(c=>{
 });
 
 /* DRAW */
-canvas.addEventListener("mousedown",()=>{drawing=true;saveState();});
-canvas.addEventListener("mouseup",()=>drawing=false);
-canvas.addEventListener("mousemove",e=>{
+canvas.style.touchAction = "none";
+
+function startDraw(e){
+  drawing = true;
+  saveState();
+}
+
+function endDraw(){
+  drawing = false;
+}
+
+function draw(e){
+  if(!drawing) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+  if(tool==="pencil"){
+    ctx.fillStyle=color;
+    ctx.fillRect(x,y,3,3);
+  }
+
+  if(tool==="eraser"){
+    ctx.clearRect(x,y,10,10);
+  }
+}
+
+canvas.addEventListener("mousedown",startDraw);
+canvas.addEventListener("mouseup",endDraw);
+canvas.addEventListener("mousemove",draw);
+
+canvas.addEventListener("touchstart",startDraw);
+canvas.addEventListener("touchend",endDraw);
+canvas.addEventListener("touchmove",draw);
  if(!drawing) return;
  if(tool==="pencil"){
    ctx.fillStyle=color;
@@ -240,17 +286,16 @@ canvas.addEventListener("mousemove",e=>{
 });
 
 /* TEXT */
-canvas.addEventListener("click",e=>{
- if(tool==="text"){
-   let text=prompt("Enter text");
-   if(text){
-     ctx.fillStyle=color;
-     ctx.font="16px monospace";
-     ctx.fillText(text,e.offsetX,e.offsetY);
-     saveState();
-   }
- }
-});
+if(tool==="text"){
+  let text = prompt("Enter text");
+  if(text){
+    saveState();
+    ctx.fillStyle = color;
+    ctx.font = "20px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width/2, canvas.height/2);
+  }
+}
 
 /* UNDO REDO */
 function saveState(){
@@ -275,8 +320,11 @@ redoBtn.onclick=()=>{
 };
 
 /* SECRET NOCIV MODE */
-window.addEventListener("keydown",e=>{
- if(e.key==="N") nocivMode=true;
+window.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "n") {
+    nocivMode = true;
+    alert("NOCIV mode enabled");
+  }
 });
 
 /* SEND */
