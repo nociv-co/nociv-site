@@ -14,11 +14,6 @@ body {
   text-align: center;
 }
 
-a {
-  color: #ccc;
-  text-decoration: none;
-}
-
 header img {
   width: 100%;
   max-width: 700px;
@@ -26,7 +21,6 @@ header img {
   margin-bottom: 40px;
 }
 
-/* --- RESTORED MANIFESTO STYLES --- */
 .manifesto {
   font-size: 1.2rem;
   line-height: 2.2;
@@ -37,6 +31,33 @@ header img {
   padding: 0 20px;
 }
 
+/* --- POP-UP SECTION STYLES --- */
+.popup-section {
+  margin: 60px auto;
+  max-width: 900px;
+  padding: 0 20px;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 250px;
+  background: #111;
+  border: 1px solid #333;
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #222;
+  margin: 40px 0;
+}
+
 #states button {
   margin: 4px;
   background: #111;
@@ -45,14 +66,9 @@ header img {
   padding: 6px 12px;
   cursor: pointer;
 }
-#states button:hover {
-  background: #333;
-}
+#states button:hover { background: #333; }
 
-#editor {
-  display: none;
-  margin-top: 40px;
-}
+#editor { display: none; margin-top: 40px; }
 
 textarea {
   width: 100%;
@@ -72,32 +88,16 @@ textarea {
   border: 1px solid #444;
   color: #ccc;
 }
-#sendBtn:hover {
-  background: #333;
-}
 
 .postWrap {
   border-top: 1px solid #222;
   padding: 16px 0;
   text-align: left;
 }
-.postDate {
-  float: right;
-  opacity: .6;
-  font-size: 12px;
-}
-.postText {
-  white-space: pre-wrap;
-  margin-top: 10px;
-}
-
-.greenMark {
-  color: #0b3d2e;
-}
-
-.clearfix {
-  clear: both;
-}
+.postDate { float: right; opacity: .6; font-size: 12px; }
+.postText { white-space: pre-wrap; margin-top: 10px; }
+.greenMark { color: #0b3d2e; }
+.clearfix { clear: both; }
 </style>
 </head>
 
@@ -113,37 +113,49 @@ Showcasing present connection.<br><br>
 No ads. No algorithm. Just human.
 </p>
 
-<hr style="border-color:#222; margin:30px 0;">
+<hr>
+<section class="popup-section">
+  <h2 style="letter-spacing:4px;">NEXT POP-UP</h2>
+  
+  <div class="map-placeholder">
+    [ Visual / Map Placeholder ]
+  </div>
+  
+  <p id="popup-location" style="font-size: 1.5rem; margin-top: 10px;">
+    </p>
+</section>
+<hr>
 
 <div style="max-width:900px; margin:60px auto 40px auto; padding: 0 20px;">
   <img src="black-america.svg" style="width:100%;" alt="Black America">
 </div>
 
 <section style="max-width:900px; margin:auto; padding: 0 20px;">
+  <h2 style="letter-spacing:4px;">THE STALL WALL</h2>
+  <p style="opacity:.7; margin-bottom:40px;">
+  this is how word of mouth works, it goes peer to peer and reaches different states
+  </p>
 
-<h2 style="letter-spacing:4px;">THE STALL WALL</h2>
-<p style="opacity:.7; margin-bottom:40px;">
-this is how word of mouth works, it goes peer to peer and reaches different states
-</p>
+  <div id="states"></div>
 
-<div id="states"></div>
-
-<div id="editor">
-  <h2 id="stateTitle"></h2>
-
-  <div style="margin-bottom:20px; text-align:left;">
-    <label for="postInput">Speak Your Truth</label>
-    <textarea id="postInput" rows="4"></textarea>
+  <div id="editor">
+    <h2 id="stateTitle"></h2>
+    <div style="margin-bottom:20px; text-align:left;">
+      <label for="postInput">Speak Your Truth</label>
+      <textarea id="postInput" rows="4"></textarea>
+    </div>
+    <button id="sendBtn">Send Mark</button>
+    <div id="postsList" style="margin-top:40px;"></div>
   </div>
-
-  <button id="sendBtn">Send Mark</button>
-
-  <div id="postsList" style="margin-top:40px;"></div>
-</div>
-
 </section>
 
 <script>
+// --- QUICK SETTINGS: UPDATE LOCATION HERE ---
+const currentPopUpLocation = "Phoenix, AZ<br>Coming Soon";
+
+// Apply the location to the page
+document.getElementById('popup-location').innerHTML = currentPopUpLocation;
+
 // --- STATE LIST ---
 const states = [
   "Alabama","Alaska","Arizona","Arkansas","California","Colorado",
@@ -165,7 +177,6 @@ const postsList = document.getElementById("postsList");
 let currentState = "";
 let secretMode = false;
 
-// render states
 states.forEach(st => {
   const btn = document.createElement("button");
   btn.innerText = st;
@@ -178,7 +189,6 @@ states.forEach(st => {
   statesDiv.appendChild(btn);
 });
 
-// secret NOCIV admin mode
 window.addEventListener("keydown", e => {
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "n") {
     secretMode = !secretMode;
@@ -186,58 +196,42 @@ window.addEventListener("keydown", e => {
   }
 });
 
-// load posts
 function loadPosts() {
   postsList.innerHTML = "";
   let allPosts = JSON.parse(localStorage.getItem("stallPosts")) || [];
   let statePosts = allPosts.filter(p => p.state === currentState);
-
   const now = Date.now();
   statePosts = statePosts.filter(p => now - p.time < 30*24*60*60*1000);
-  
   if (statePosts.length === 0) {
     postsList.innerHTML = "<p style='opacity:.6'>No marks yet</p>";
     return;
   }
-
   statePosts.forEach(p => {
     let div = document.createElement("div");
     div.className = "postWrap";
-
     let date = document.createElement("div");
     date.className = "postDate";
     date.innerText = p.date;
-
     let text = document.createElement("div");
     text.className = "postText";
     text.innerText = p.text;
-
-    if (p.admin && secretMode) {
-      text.classList.add("greenMark");
-    }
-
+    if (p.admin && secretMode) text.classList.add("greenMark");
     div.appendChild(date);
     div.appendChild(text);
-
     let clear = document.createElement("div");
     clear.className = "clearfix";
     div.appendChild(clear);
-
     postsList.appendChild(div);
   });
 }
 
-// send mark
 document.getElementById("sendBtn").onclick = () => {
   const text = postInput.value.trim();
   if (!text) return;
-
   const today = new Date();
   const month = today.toLocaleString("en-US", { month: "short" }).toLowerCase();
   const dateStr = month + "." + today.getDate() + "." + today.getFullYear();
-
   let allPosts = JSON.parse(localStorage.getItem("stallPosts")) || [];
-
   allPosts.unshift({
     state: currentState,
     text,
@@ -245,7 +239,6 @@ document.getElementById("sendBtn").onclick = () => {
     time: Date.now(),
     admin: secretMode
   });
-
   localStorage.setItem("stallPosts", JSON.stringify(allPosts));
   postInput.value = "";
   loadPosts();
