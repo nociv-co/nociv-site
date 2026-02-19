@@ -88,62 +88,38 @@
   </script>
 </body>
 </html>
-<hr style="margin:80px 0; border-color:#333;">
+<hr style="margin:80px 0; border-color:#2a2a2a;">
 
-<section id="us-wall">
-  <hr style="margin:80px 0; border-color:#333;">
+<section id="stall-wall" style="max-width:900px; margin:auto;">
 
-<section id="us-wall">
-  <h2 style="letter-spacing:4px;">THE STALL WALL</h2>
+<h2 style="letter-spacing:4px;">THE STALL WALL</h2>
 
-  <div style="margin-bottom:20px; font-size:14px; opacity:.7;">
-    make your mark this month
-  </div>
+<p style="opacity:.7; margin-bottom:40px;">
+this is how word of mouth works, it goes peer to peer and reaches different states
+</p>
 
-  <div id="states"></div>
+<div id="states" style="margin-bottom:40px;"></div>
 
-  <div id="stateBoard" style="display:none; margin-top:60px;">
-    <h2 id="stateTitle" style="font-weight:bold;"></h2>
+<div id="editor" style="display:none; margin-bottom:60px;">
 
-    <div style="font-size:12px; margin-bottom:20px; color:green;">
-      ● Green text = NOCIV
-    </div>
+<h2 id="stateTitle"></h2>
 
-    <textarea id="postInput" placeholder="Speak your truth"
-      style="width:100%; height:80px; background:black; color:gray; border:1px solid #333; padding:10px;"></textarea>
+<div id="toolBar" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px;"></div>
 
-    <br><br>
+<canvas id="canvas"></canvas>
 
-    <div id="drawArea" style="margin-bottom:20px;">
-      <canvas id="canvas" width="400" height="200"
-        style="border:1px solid #333; background:white;"></canvas>
+<div id="colorBar" style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;"></div>
 
-      <div style="margin-top:10px;">
-        <button onclick="setTool('pencil')">Pencil</button>
-        <button onclick="setTool('eraser')">Eraser</button>
-        <button onclick="fillCanvas()">Bucket</button>
-      </div>
+<button id="sendBtn">Send Mark</button>
 
-      <div style="margin-top:10px;">
-        <span style="background:#0b3d2e; width:20px; height:20px; display:inline-block;" onclick="setColor('#0b3d2e')"></span>
-        <span style="background:#8b0000; width:20px; height:20px; display:inline-block;" onclick="setColor('#8b0000')"></span>
-        <span style="background:#d4a017; width:20px; height:20px; display:inline-block;" onclick="setColor('#d4a017')"></span>
-        <span style="background:black; width:20px; height:20px; display:inline-block;" onclick="setColor('black')"></span>
-        <span style="background:navy; width:20px; height:20px; display:inline-block;" onclick="setColor('navy')"></span>
-        <span style="background:gray; width:20px; height:20px; display:inline-block;" onclick="setColor('gray')"></span>
-      </div>
-    </div>
+</div>
 
-    <button onclick="submitPost()" style="padding:10px 20px; background:black; color:gray; border:1px solid #444;">
-      Post
-    </button>
+<div id="mainFeed"></div>
 
-    <div id="wallPosts" style="margin-top:40px;"></div>
-  </div>
 </section>
 
 <script>
-const states = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
+const states=[ "Alabama","Alaska","Arizona","Arkansas","California","Colorado",
 "Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois",
 "Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland",
 "Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana",
@@ -152,115 +128,218 @@ const states = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
 "Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah",
 "Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
 
-const statesContainer = document.getElementById("states");
-const stateBoard = document.getElementById("stateBoard");
-const stateTitle = document.getElementById("stateTitle");
-const wallPosts = document.getElementById("wallPosts");
+const stateContainer=document.getElementById("states");
+const editor=document.getElementById("editor");
+const stateTitle=document.getElementById("stateTitle");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const toolBar=document.getElementById("toolBar");
+const colorBar=document.getElementById("colorBar");
+const sendBtn=document.getElementById("sendBtn");
+const mainFeed=document.getElementById("mainFeed");
 
-let currentState = "";
+let currentState="";
+let tool="pencil";
+let color="#000";
+let drawing=false;
+let history=[];
+let redoStack=[];
 
-states.forEach(state => {
-  const btn = document.createElement("button");
-  btn.innerText = state;
-  btn.style.margin = "5px";
-  btn.style.background = "black";
-  btn.style.color = "gray";
-  btn.style.border = "1px solid #333";
-  btn.style.padding = "5px 10px";
-  btn.onclick = () => {
-    document.querySelectorAll("#states button").forEach(b => b.style.background="black");
-    btn.style.background = "gray";
-    openState(state);
-  };
-  statesContainer.appendChild(btn);
+/* Responsive canvas */
+function resizeCanvas(){
+  canvas.width=canvas.parentElement.offsetWidth;
+  canvas.height=300;
+}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
+
+/* States */
+states.forEach(s=>{
+ let b=document.createElement("button");
+ b.innerText=s;
+ styleBtn(b);
+ b.onclick=()=>{
+   document.querySelectorAll("#states button").forEach(btn=>btn.style.background="#111");
+   b.style.background="#444";
+   currentState=s;
+   stateTitle.innerText=s;
+   editor.style.display="block";
+ };
+ stateContainer.appendChild(b);
 });
 
-function openState(state){
-  currentState = state;
-  stateTitle.innerText = state;
-  stateBoard.style.display = "block";
-  loadPosts();
+/* Tools */
+const tools=["pencil","eraser","spray","fill","text","undo","redo"];
+tools.forEach(t=>{
+ let b=document.createElement("button");
+ b.innerText=t;
+ styleBtn(b);
+ b.onclick=()=>selectTool(t,b);
+ toolBar.appendChild(b);
+});
+
+function selectTool(t,btn){
+ tool=t;
+ document.querySelectorAll("#toolBar button").forEach(b=>b.style.outline="none");
+ btn.style.outline="2px solid white";
 }
 
-function submitPost(){
-  const text = document.getElementById("postInput").value.trim();
-  const canvas = document.getElementById("canvas");
-  const image = canvas.toDataURL();
-  if(!text && image === blankCanvas) return;
-
-  const today = new Date();
-  const month = today.toLocaleString('en-US', {month:'short'}).toLowerCase();
-  const dateString = month + "." + today.getDate() + "." + today.getFullYear();
-
-  const post = {
-    text,
-    image,
-    date: dateString,
-    timestamp: Date.now()
-  };
-
-  let posts = JSON.parse(localStorage.getItem(currentState)) || [];
-  posts.unshift(post);
-  localStorage.setItem(currentState, JSON.stringify(posts));
-
-  document.getElementById("postInput").value = "";
-  clearCanvas();
-  loadPosts();
-}
-
-function loadPosts(){
-  wallPosts.innerHTML = "";
-  let posts = JSON.parse(localStorage.getItem(currentState)) || [];
-
-  const now = Date.now();
-  posts = posts.filter(p => now - p.timestamp < 30*24*60*60*1000);
-
-  localStorage.setItem(currentState, JSON.stringify(posts));
-
-  posts.forEach(post => {
-    const div = document.createElement("div");
-    div.style.marginBottom = "30px";
-    div.style.color = "gray";
-
-    div.innerHTML = "<strong>" + post.date + "</strong><br>" + post.text;
-    if(post.image){
-      const img = document.createElement("img");
-      img.src = post.image;
-      img.style.maxWidth = "400px";
-      div.appendChild(img);
-    }
-    wallPosts.appendChild(div);
-  });
-}
+/* Colors */
+const colors=["#0b3d2e","#8b0000","#d4a017","#000","#001f3f","#666","#ccc","#fff"];
+colors.forEach(c=>{
+ let sw=document.createElement("div");
+ sw.style.width="28px";
+ sw.style.height="28px";
+ sw.style.background=c;
+ sw.style.cursor="pointer";
+ sw.onclick=()=>{
+   color=c;
+   document.querySelectorAll("#colorBar div").forEach(d=>d.style.outline="none");
+   sw.style.outline="2px solid white";
+ };
+ colorBar.appendChild(sw);
+});
 
 /* Drawing */
+canvas.addEventListener("mousedown",()=>{drawing=true;saveState();});
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mousemove",e=>{
+ if(!drawing) return;
+ if(tool==="pencil"){
+   ctx.fillStyle=color;
+   ctx.fillRect(e.offsetX,e.offsetY,3,3);
+ }
+ if(tool==="eraser"){
+   ctx.clearRect(e.offsetX,e.offsetY,10,10);
+ }
+ if(tool==="spray"){
+   ctx.fillStyle=color;
+   for(let i=0;i<10;i++){
+     let dx=Math.random()*20-10;
+     let dy=Math.random()*20-10;
+     ctx.fillRect(e.offsetX+dx,e.offsetY+dy,1,1);
+   }
+ }
+});
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-let drawing = false;
-let tool = "pencil";
-let color = "black";
+/* Text tool */
+canvas.addEventListener("click",e=>{
+ if(tool==="text"){
+   let text=prompt("Enter text");
+   if(text){
+     ctx.fillStyle=color;
+     ctx.font="16px monospace";
+     ctx.fillText(text,e.offsetX,e.offsetY);
+     saveState();
+   }
+ }
+});
 
-const blankCanvas = canvas.toDataURL();
-
-canvas.addEventListener("mousedown", () => drawing=true);
-canvas.addEventListener("mouseup", () => drawing=false);
-canvas.addEventListener("mousemove", draw);
-
-function draw(e){
-  if(!drawing) return;
-  ctx.fillStyle = tool==="eraser" ? "white" : color;
-  ctx.fillRect(e.offsetX, e.offsetY, 4, 4);
+/* Fill */
+function selectToolAction(){
+ if(tool==="fill"){
+   saveState();
+   ctx.fillStyle=color;
+   ctx.fillRect(0,0,canvas.width,canvas.height);
+ }
 }
 
-function setTool(t){ tool=t; }
-function setColor(c){ color=c; }
-function fillCanvas(){
-  ctx.fillStyle=color;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+/* Undo/Redo */
+function saveState(){
+ history.push(canvas.toDataURL());
+ redoStack=[];
 }
-function clearCanvas(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+function undo(){
+ if(history.length){
+   redoStack.push(canvas.toDataURL());
+   let img=new Image();
+   img.src=history.pop();
+   img.onload=()=>ctx.drawImage(img,0,0);
+ }
 }
+function redo(){
+ if(redoStack.length){
+   history.push(canvas.toDataURL());
+   let img=new Image();
+   img.src=redoStack.pop();
+   img.onload=()=>ctx.drawImage(img,0,0);
+ }
+}
+
+toolBar.querySelectorAll("button")[4].onclick=undo;
+toolBar.querySelectorAll("button")[5].onclick=redo;
+
+/* Send */
+sendBtn.innerText="Send Mark";
+styleBtn(sendBtn);
+
+sendBtn.onclick=()=>{
+ saveState();
+ const image=canvas.toDataURL();
+ const today=new Date();
+ const month=today.toLocaleString('en-US',{month:'short'}).toLowerCase();
+ const date=`${month}.${today.getDate()}.${today.getFullYear()}`;
+ const post={state:currentState,image,date,time:Date.now()};
+ let posts=JSON.parse(localStorage.getItem("stallPosts"))||[];
+ posts.unshift(post);
+ localStorage.setItem("stallPosts",JSON.stringify(posts));
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ renderFeed();
+};
+
+/* Feed */
+function renderFeed(){
+ mainFeed.innerHTML="";
+ let posts=JSON.parse(localStorage.getItem("stallPosts"))||[];
+ posts=posts.filter(p=>Date.now()-p.time<30*24*60*60*1000);
+ localStorage.setItem("stallPosts",JSON.stringify(posts));
+ posts.forEach(p=>{
+   let wrap=document.createElement("div");
+   wrap.style.borderTop="1px solid #222";
+   wrap.style.padding="20px 0";
+   wrap.style.display="flex";
+   wrap.style.flexDirection="column";
+
+   let header=document.createElement("div");
+   header.style.display="flex";
+   header.style.justifyContent="space-between";
+   header.style.marginBottom="10px";
+
+   let tag=document.createElement("div");
+   tag.innerText=p.state;
+   tag.style.border="1px solid #444";
+   tag.style.padding="4px 8px";
+   tag.style.fontSize="12px";
+
+   let date=document.createElement("div");
+   date.innerText=p.date;
+   date.style.fontSize="12px";
+   date.style.opacity=".6";
+
+   header.appendChild(tag);
+   header.appendChild(date);
+
+   let img=document.createElement("img");
+   img.src=p.image;
+   img.style.width="100%";
+   img.style.marginTop="10px";
+
+   wrap.appendChild(header);
+   wrap.appendChild(img);
+   mainFeed.appendChild(wrap);
+ });
+}
+
+function styleBtn(b){
+ b.style.background="#111";
+ b.style.color="#aaa";
+ b.style.border="1px solid #333";
+ b.style.padding="6px 10px";
+ b.style.cursor="pointer";
+ b.onmouseover=()=>b.style.background="#333";
+ b.onmouseout=()=>b.style.background="#111";
+}
+
+renderFeed();
 </script>
 
